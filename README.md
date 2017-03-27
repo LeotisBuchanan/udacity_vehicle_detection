@@ -12,6 +12,8 @@ All that said, please be concise!  We're not looking for you to write a book her
 
 You can submit your writeup in markdown or use another method and submit a pdf instead.
 
+rass
+
 The Project
 ---
 
