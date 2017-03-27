@@ -1,5 +1,8 @@
+\#*
 *~
-cars2
-cars3
-notcars2
 notcars3
+notcars2
+cars3
+cars2
+\.#*
+__pycache__
