@@ -41,7 +41,7 @@ class FeatureGenerator:
         return hog_features
 
     def getAllFeatures(self, img, settingsDict):
-
+        allFeatures = []
         orient = self.settingsDict[self.constants.ORIENTATION]
         pix_per_cell = self.settingsDict[self.constants.PIXEL_PER_CELL]
         cell_per_block = self.settingsDict[self.constants.CELL_PER_BLOCK]
@@ -56,42 +56,31 @@ class FeatureGenerator:
                                                 cell_per_block=cell_per_block,
                                                 vis=False,
                                                 feature_vec=True)
-        print("*** mine ***")
-        print("hog features ")
-        print(len(hgFeatures))
         
         spFeatures = self.generate_spatial_features(img, size=size)
-        print("spatial features ")
-        print(len(spFeatures))
-        
-
         histFeatures = self.generate_color_histogram_features(
             img,
             nbins=nbins,
             bins_range=bins_range)
 
-        print("hist features ")
-        print(len(histFeatures))
-        
-        print("*** end mine **")
-    
-        allFeatures = np.concatenate((hgFeatures, spFeatures, histFeatures))
+        allFeatures.append(spFeatures)
+        allFeatures.append(histFeatures)
+        allFeatures.append(hgFeatures)
+        return np.concatenate(allFeatures)
 
-        return allFeatures
 
     def computeFeatures(self, img_paths):
         features = []
         for path in img_paths:
+            # get the features for each image
             img = mpimg.imread(path)
             f = self.getAllFeatures(img, self.settingsDict)
             features.append(f)
-            
-        return np.concatenate(features)
+
+        return features
     
     def generate_spatial_features(self, img, size=(32, 32)):
         # Use cv2.resize().ravel() to create the feature vector
-        print("img size")
-        print(img.shape)
         features = cv2.resize(img, size).ravel() 
         # Return the feature vector
         return features
@@ -132,8 +121,6 @@ class FeatureGenerator:
 
 def bin_spatial(img, size=(32, 32)):
     # Use cv2.resize().ravel() to create the feature vector
-    print("img size")
-    print(img.shape)
     features = cv2.resize(img, size).ravel() 
     # Return the feature vector
     return features
@@ -197,15 +184,11 @@ def single_img_features(img, color_space='RGB', spatial_size=(32, 32),
     #3) Compute spatial features if flag is set
     if spatial_feat == True:
         spatial_features = bin_spatial(feature_image, size=spatial_size)
-        print("spatial features")
-        print(len(spatial_features))
         #4) Append features to list
         img_features.append(spatial_features)
     #5) Compute histogram features if flag is set
     if hist_feat == True:
         hist_features = color_hist(feature_image, nbins=hist_bins)
-        print("hist features")
-        print(len(hist_features))
         #6) Append features to list
         img_features.append(hist_features)
     #7) Compute HOG features if flag is set
@@ -220,9 +203,6 @@ def single_img_features(img, color_space='RGB', spatial_size=(32, 32),
             hog_features = get_hog_features(feature_image[:,:,hog_channel], orient, 
                         pix_per_cell, cell_per_block, vis=False, feature_vec=True)
         #8) Append features to list
-        print("hog features")
-        print(len(hog_features))
         img_features.append(hog_features)
-        print("*** end udacity features ***")
     #9) Return concatenated array of features
     return np.concatenate(img_features)
