@@ -53,9 +53,11 @@ def runpipeline():
     # column array
     classifier.train(car_features, non_car_features)
 
+    # only search the bottom part of the image
+    y_stop = int(test_image.shape[0]*0.7)
     candidate_windows = windowManager.slide_window(test_image,
                                                    x_start_stop=[None, None],
-                                                   y_start_stop=[None, None], 
+                                                   y_start_stop=[y_stop, None], 
                                                    xy_window=(64, 64),
                                                    xy_overlap=(0.5, 0.5))
 
@@ -69,7 +71,7 @@ def runpipeline():
                                                              featureGenerator,
                                                              settingsDict)
 
-    sys.exit(0)
+
     best_pred_bboxes = predictionQualityManager.findBestPredictions(
         detected_cars_coordinates)
     output_img = windowManager.draw_boxes(test_image, best_pred_bboxes,
