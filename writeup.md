@@ -15,12 +15,8 @@ response
 Explanation given for methods used to extract HOG features, including which color space was chosen, which HOG parameters (orientations, pixels_per_cell, cells_per_block), and why.
 
 
-
-
-Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
-
-
-The HOG features extracted from the training data have been used to train a classifier, could be SVM, Decision Tree or other. Features should be scaled to zero mean and unit variance before training the classifier.
+---
+###Writeup 
 
 
 Sliding Window Search
