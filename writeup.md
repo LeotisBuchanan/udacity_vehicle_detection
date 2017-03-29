@@ -26,7 +26,7 @@ All the non-car images and car images was read in (see vehicleDetector.py line #
 
 The following are examples of non car and car images 
 
-![alt text][noncar1]
+![alt text][vehicle_detection/data/cars1/1.jpeg]
 ![alt text][noncar2]
 ![alt text][car1]
 ![alt text][car2]
