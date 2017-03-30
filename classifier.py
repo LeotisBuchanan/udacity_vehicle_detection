@@ -4,7 +4,10 @@ from sklearn.svm import LinearSVC
 from skimage.feature import hog
 import cv2
 from sklearn.preprocessing import StandardScaler
-
+from sklearn.externals import joblib
+from settings import Settings
+from featuregenerator import FeatureGenerator
+import glob
 
 class Classifier:
 
@@ -15,10 +18,30 @@ class Classifier:
         prediction = self.svc.predict(features)
         return prediction
 
+    def train(self, cars_base_path, not_cars_base_path, retrain=True):
+       classifier = None
+       if retrain:
+           classifier = self._train(cars_base_path, not_cars_base_path)
+           # save classifier for later use
+           joblib.dump(classifier, 'vehicle_classifier.pkl')
+       else:
+           # load the existing classifier
+           classifier = joblib.load('vehicle_classifier.pkl') 
 
-    def train(self, car_features, not_car_features):
-        import sys
+    
+    def _train(self, cars_base_path, not_cars_base_path):
 
+        settings = Settings()
+        settingsDict = settings.settingsDict
+        featureGenerator = FeatureGenerator(settingsDict)
+
+        cars_image_path_list = glob.glob(cars_base_path+"/*.jpeg")
+        not_cars_image_path_list = glob.glob(not_cars_base_path+"/*.jpeg")
+
+
+        car_features = featureGenerator.computeFeatures(cars_image_path_list)
+        not_car_features = featureGenerator.computeFeatures(not_cars_image_path_list)
+    
         X = np.vstack((car_features,
                        not_car_features)).astype(np.float64)                        
 
@@ -39,4 +62,5 @@ class Classifier:
         # Check the training time for the SVC
         self.svc.fit(X_train, y_train)
         print('Test Accuracy of SVC = ', round(self.svc.score(X_test, y_test), 4))    
-        
+        return self
+
