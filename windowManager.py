@@ -52,10 +52,7 @@ class WindowManager:
         # Return the list of windows
         return window_list
 
-
-    
-
-    def search_windows(self, img, windows,classifier,
+    def search_windows(self, img, windows, classifier,
                        featureGenerator, settingsDict):
 
         on_windows = []
@@ -67,6 +64,7 @@ class WindowManager:
             # 4) Extract features for that window using single_img_features()
             features = featureGenerator.getAllFeatures(test_img, settingsDict)
             # 5) Scale extracted features to be fed to classifier
+            
             test_features = classifier.scaler.transform(
                 np.array(features).reshape(1, -1))
             # 6) Predict using your classifier

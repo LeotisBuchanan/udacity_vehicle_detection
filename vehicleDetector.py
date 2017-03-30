@@ -20,11 +20,12 @@ class VehicleDetector:
         self.cars_base_path = DATA_BASE_PATH + CARS
         self.not_cars_base_path = DATA_BASE_PATH + NOT_CARS
         self.classifier = Classifier()
-        self.classifier.train(self.cars_base_path, self.not_cars_base_path,retrain=False)
+        self.classifier.train(self.cars_base_path, self.not_cars_base_path)
         self.windowManager = WindowManager()
         self.settingsDict = (Settings()).settingsDict
         self.featureGenerator = FeatureGenerator(self.settingsDict)
-        self.predictionQualityManager = PredictionQualityManager()
+        template_image = mpimg.imread('test_images/test5.jpg')        
+        self.predictionQualityManager = PredictionQualityManager(template_image)
         
     def pipeline(self, img):
        
@@ -37,6 +38,9 @@ class VehicleDetector:
         # that are off the road
         
         y_stop = int(img.shape[0]*0.1)
+        y_stop = int(img.shape[0]*0.4)
+        print("y_stop:", y_stop)
+        
         candidate_windows = self.windowManager.slide_window(img,
                                                    x_start_stop=[None, None],
                                                    y_start_stop=[y_stop, None], 
@@ -62,7 +66,7 @@ class VehicleDetector:
         best_pred_bboxes = self.predictionQualityManager.findBestPredictions(
             detected_cars_coordinates)
 
-        print(candidate_windows)
+
         output_img = self.windowManager.draw_boxes(img, best_pred_bboxes,
                                           color=(0, 0, 255), thick=6)
     
@@ -82,13 +86,61 @@ class VehicleDetector:
             clip = clip2.fl_image(self.pipeline)
             clip.write_videofile(output, audio=False)    
 
+
+    def testOnImages(self):
+        img1 = mpimg.imread('test_images/test1.jpg')
+        img2 = mpimg.imread('test_images/test2.jpg')
+        img3 = mpimg.imread('test_images/test3.jpg')
+        img4 = mpimg.imread('test_images/test4.jpg')
+        img5 = mpimg.imread('test_images/test5.jpg')
+        img6 = mpimg.imread('test_images/test5.jpg')
+
+        testImages = [
+            img1,
+            img2,
+            img3,
+            img4,
+            img5,
+            img6
+        ]
+
+        resultImages = []
+        
+        for img in testImages:
+            image = vehicleDetector.pipeline(img)
+            resultImages.append(image)
+        
+
+        fig = plt.figure()
+        a=fig.add_subplot(1,3,1)
+        imgplot = plt.imshow(resultImages[0])
+        a.set_title("test1")
+        a=fig.add_subplot(1,3,2)
+        imgplot = plt.imshow(resultImages[1])
+
+        a=fig.add_subplot(1,3,3)
+        imgplot = plt.imshow(resultImages[2])
+        a.set_title("test2")
+    
+        a=fig.add_subplot(2,3,1)
+        imgplot = plt.imshow(resultImages[3])
+        a.set_title("test3")
+    
+        a=fig.add_subplot(2,3,2)
+        imgplot = plt.imshow(resultImages[4])
+        a.set_title("test4")
+    
+        a=fig.add_subplot(2,3,3)
+        imgplot = plt.imshow(resultImages[5])
+        a.set_title("test5")
+
+    
+        print("showing image")
+        plt.show()
+        
+            
 if __name__ == "__main__":
     vehicleDetector = VehicleDetector()
-    #videoList = ["videos/input/test_video.mp4", "videos/input/project_video.mp4"]
-    #vehicleDetector.run(videoList)
+    videoList = ["videos/input/project_video.mp4"]
+    vehicleDetector.run(videoList)
 
-    img = mpimg.imread('test_images/test2.jpg')
-    image = vehicleDetector.pipeline(img)
-    print("showing image")
-    plt.imshow(image)
-    plt.show()

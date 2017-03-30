@@ -7,11 +7,11 @@ from scipy.ndimage.measurements import label
 
 class PredictionQualityManager:
 
-   
+    def __init__(self, image):
+        self.heat = np.zeros_like(image[:,:,0]).astype(np.float)
+        
 
-    def findBestPredictions(self,detected_cars_bboxes):
-
-        return detected_cars_bboxes
+    def findBestPredictions(self, detected_cars_bboxes):
 
         """
          attempt to determine if the given boxes are 
@@ -20,13 +20,13 @@ class PredictionQualityManager:
         """
         best_predicted_boxes = [] 
         # Add heat to each box in box list
-        heat = add_heat(heat,detected_cars_bboxes)
+        self.heat = self.add_heat(self.heat, detected_cars_bboxes)
         
         # Apply threshold to help remove false positives
-        heat = apply_threshold(heat,1)
+        self.heat = self.apply_threshold(self.heat,3)
 
         # Visualize the heatmap when displaying    
-        heatmap = np.clip(heat, 0, 255)
+        heatmap = np.clip(self.heat, 0, 255)
 
         # Find final boxes from heatmap using label function
         labels = label(heatmap)
