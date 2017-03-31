@@ -9,6 +9,11 @@ from settings import Settings
 from featuregenerator import FeatureGenerator
 import glob
 
+
+##  Todo need to create a pipeline with
+##  with a scalar so that I can save the
+##  classifier 
+
 class Classifier:
 
     def __init__(self):

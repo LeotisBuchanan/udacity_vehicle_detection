@@ -37,15 +37,7 @@ class VehicleDetector:
         # also clip the sides of the image to exclude areas
         # that are off the road
         
-        y_stop = int(img.shape[0]*0.1)
         y_stop = int(img.shape[0]*0.4)
-        print("y_stop:", y_stop)
-        
-        candidate_windows = self.windowManager.slide_window(img,
-                                                   x_start_stop=[None, None],
-                                                   y_start_stop=[y_stop, None], 
-                                                   xy_window=(64, 64),
-                                                   xy_overlap=(0.5, 0.5))
 
         candidate_windows128 = self.windowManager.slide_window(img,
                                                    x_start_stop=[None, None],
@@ -53,23 +45,31 @@ class VehicleDetector:
                                                    xy_window=(128, 128),
                                                    xy_overlap=(0.5, 0.5))
 
-        candidate_windows.extend(candidate_windows128)
 
+        candidate_windows64 = self.windowManager.slide_window(img,
+                                                   x_start_stop=[None, None],
+                                                   y_start_stop=[y_stop, None], 
+                                                   xy_window=(64, 64),
+                                                   xy_overlap=(0.5, 0.5))
+
+
+        candidate_windows256 = self.windowManager.slide_window(img,
+                                                   x_start_stop=[None, None],
+                                                   y_start_stop=[y_stop, None], 
+                                                   xy_window=(256, 256),
+                                                   xy_overlap=(0.5, 0.5))
+
+        candidate_windows128.extend(candidate_windows64)
+        candidate_windows128.extend(candidate_windows256)
+        candidate_windows = candidate_windows128
         # return a list of boxes coordinates
         detected_cars_coordinates = self.windowManager.search_windows(img,
                                                                  candidate_windows,
                                                                  self.classifier,
                                                                  self.featureGenerator,
                                                                  self.settingsDict)
-
-
-        best_pred_bboxes = self.predictionQualityManager.findBestPredictions(
-            detected_cars_coordinates)
-
-
-        output_img = self.windowManager.draw_boxes(img, best_pred_bboxes,
-                                          color=(0, 0, 255), thick=6)
-    
+        best_pred_bboxes = self.predictionQualityManager.findBestPredictions(detected_cars_coordinates)
+        output_img = self.windowManager.draw_boxes(img, best_pred_bboxes,color=(0, 0, 255), thick=4)
         return output_img
 
 
@@ -95,14 +95,7 @@ class VehicleDetector:
         img5 = mpimg.imread('test_images/test5.jpg')
         img6 = mpimg.imread('test_images/test5.jpg')
 
-        testImages = [
-            img1,
-            img2,
-            img3,
-            img4,
-            img5,
-            img6
-        ]
+        testImages = [img1,img2,img3,img4,img5,img6]
 
         resultImages = []
         
@@ -110,10 +103,14 @@ class VehicleDetector:
             image = vehicleDetector.pipeline(img)
             resultImages.append(image)
         
-
+            
         fig = plt.figure()
+        
+
         a=fig.add_subplot(1,3,1)
         imgplot = plt.imshow(resultImages[0])
+        imgplot.figure.savefig("image1.png")
+
         a.set_title("test1")
         a=fig.add_subplot(1,3,2)
         imgplot = plt.imshow(resultImages[1])
@@ -133,10 +130,10 @@ class VehicleDetector:
         a=fig.add_subplot(2,3,3)
         imgplot = plt.imshow(resultImages[5])
         a.set_title("test5")
-
+        
     
         print("showing image")
-        plt.show()
+        #plt.show()
         
             
 if __name__ == "__main__":
@@ -144,3 +141,4 @@ if __name__ == "__main__":
     videoList = ["videos/input/project_video.mp4"]
     vehicleDetector.run(videoList)
 
+    #vehicleDetector.testOnImages()
