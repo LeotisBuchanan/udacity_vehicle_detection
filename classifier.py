@@ -15,7 +15,9 @@ class Classifier:
         self.svc = LinearSVC()
 
     def classify(self, features):
-        prediction = self.svc.predict(features)
+        # prediction = self.svc.predict(features)
+        decision = self.svc.decision_function(test_features)
+        prediction = int(dec > 0.75)
         return prediction
 
     def train(self, cars_base_path, not_cars_base_path, retrain=True):

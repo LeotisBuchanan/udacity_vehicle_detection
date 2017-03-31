@@ -141,6 +141,7 @@ class VehicleDetector:
             
 if __name__ == "__main__":
     vehicleDetector = VehicleDetector()
-    videoList = ["videos/input/project_video.mp4"]
+    # videoList = ["videos/input/project_video.mp4"]
+    videoList = ["videos/input/test_video.mp4"]
     vehicleDetector.run(videoList)
 
