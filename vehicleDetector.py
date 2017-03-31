@@ -14,20 +14,14 @@ from sklearn.externals import joblib
 
 class VehicleDetector:
     def __init__(self):
-        DATA_BASE_PATH = "data/"
-        CARS = "cars1/"
-        NOT_CARS = "notcars1/"
-        self.cars_base_path = DATA_BASE_PATH + CARS
-        self.not_cars_base_path = DATA_BASE_PATH + NOT_CARS
-        self.classifier = Classifier()
-        self.classifier.train(self.cars_base_path, self.not_cars_base_path)
         self.windowManager = WindowManager()
         self.settingsDict = (Settings()).settingsDict
         self.featureGenerator = FeatureGenerator(self.settingsDict)
         template_image = mpimg.imread('test_images/test5.jpg')        
-        self.predictionQualityManager = PredictionQualityManager(template_image)
+        self.predictionQualityManager = PredictionQualityManager(
+            template_image)
         
-    def pipeline(self, img):
+    def pipeline(self, img, classifier, featureGenerator, settingsDict):
        
         # only search the bottom part of the image
         ## search the bottom part of the with a large window
@@ -39,55 +33,54 @@ class VehicleDetector:
         
         y_stop = int(img.shape[0]*0.4)
 
-        candidate_windows128 = self.windowManager.slide_window(img,
-                                                   x_start_stop=[None, None],
-                                                   y_start_stop=[y_stop, None], 
-                                                   xy_window=(128, 128),
-                                                   xy_overlap=(0.5, 0.5))
-
-
         candidate_windows64 = self.windowManager.slide_window(img,
-                                                   x_start_stop=[None, None],
-                                                   y_start_stop=[y_stop, None], 
+                                                              x_start_stop=[None, None],
+                                                   y_start_stop=[420, 520], 
                                                    xy_window=(64, 64),
                                                    xy_overlap=(0.5, 0.5))
 
-
-        candidate_windows256 = self.windowManager.slide_window(img,
+        candidate_windows128 = self.windowManager.slide_window(img,
                                                    x_start_stop=[None, None],
-                                                   y_start_stop=[y_stop, None], 
-                                                   xy_window=(256, 256),
+                                                   y_start_stop=[420, 520], 
+                                                   xy_window=(128,128),
                                                    xy_overlap=(0.5, 0.5))
 
-        candidate_windows128.extend(candidate_windows64)
-        candidate_windows128.extend(candidate_windows256)
-        candidate_windows = candidate_windows128
+        candidate_windows256 = self.windowManager.slide_window(img,
+                                                               x_start_stop=[None, None],
+                                                               y_start_stop=[450, 600], 
+                                                               xy_window=(256, 256),
+                                                               xy_overlap=(0.5, 0.5))
+
+        candidate_windows = candidate_windows64 + candidate_windows128 + candidate_windows256
+        
         # return a list of boxes coordinates
         detected_cars_coordinates = self.windowManager.search_windows(img,
                                                                  candidate_windows,
-                                                                 self.classifier,
-                                                                 self.featureGenerator,
-                                                                 self.settingsDict)
-        best_pred_bboxes = self.predictionQualityManager.findBestPredictions(detected_cars_coordinates)
-        output_img = self.windowManager.draw_boxes(img, best_pred_bboxes,color=(0, 0, 255), thick=4)
+                                                                 classifier,
+                                                                 featureGenerator,
+                                                                 settingsDict)
+        best_pred_bboxes = self.predictionQualityManager.findBestPredictions(
+            detected_cars_coordinates)
+        output_img = self.windowManager.draw_boxes(img, best_pred_bboxes,
+                                                   color=(0, 0, 255), thick=4)
         return output_img
 
-
-
-    def run(self, videoList):
+    def run(self, videoList, classifier, featureGenerator, settingsDict):
         for video in videoList:
             s = video.split("/")
             s[1] = "output"
-            print("video:" , video)
-            print("s:" , s)
-            output =  "/".join(s)
+            print("video:", video)
+            print("s:", s)
+            output = "/".join(s)
             print("output:", output)
             clip2 = VideoFileClip(video)
-            clip = clip2.fl_image(self.pipeline)
+            clip = clip2.fl_image(lambda image: self.pipeline(image, classifier,
+                                                         featureGenerator,
+                                                         settingsDict))
             clip.write_videofile(output, audio=False)    
 
 
-    def testOnImages(self):
+    def testOnImages(self,classifier,featureGenerator,settingsDict):
         img1 = mpimg.imread('test_images/test1.jpg')
         img2 = mpimg.imread('test_images/test2.jpg')
         img3 = mpimg.imread('test_images/test3.jpg')
@@ -100,14 +93,13 @@ class VehicleDetector:
         resultImages = []
         
         for img in testImages:
-            image = vehicleDetector.pipeline(img)
+            image = vehicleDetector.pipeline(img, classifier,
+                                             featureGenerator, settingsDict)
             resultImages.append(image)
         
-            
         fig = plt.figure()
-        
 
-        a=fig.add_subplot(1,3,1)
+        a = fig.add_subplot(1, 3, 1)
         imgplot = plt.imshow(resultImages[0])
         imgplot.figure.savefig("image1.png")
 
@@ -133,13 +125,20 @@ class VehicleDetector:
         
     
         print("showing image")
-        #plt.show()
+        plt.show()
         
             
 if __name__ == "__main__":
     vehicleDetector = VehicleDetector()
-    # videoList = ["videos/input/project_video.mp4"]
+    #videoList = ["videos/input/project_video.mp4"]
     videoList = ["videos/input/test_video.mp4"]
-    vehicleDetector.run(videoList)
+    # load the classifier
+    classifier_file = "models/classifier.pkl"
+    print("loading saved model from file....")
+    model_data = joblib.load(classifier_file)
+    classifier = model_data['model']
+    settingsDict = model_data['settings_dict']                              
+    featureGenerator = FeatureGenerator(settingsDict)
+    vehicleDetector.run(videoList,classifier, featureGenerator,settingsDict)
 
-    #vehicleDetector.testOnImages()
+    # vehicleDetector.testOnImages(classifier,featureGenerator,settingsDict)

@@ -65,13 +65,11 @@ class WindowManager:
             features = featureGenerator.getAllFeatures(test_img, settingsDict)
             # 5) Scale extracted features to be fed to classifier
             
-            test_features = classifier.scaler.transform(
-                np.array(features).reshape(1, -1))
+            test_features = np.array(features).reshape(1, -1)
             # 6) Predict using your classifier
 
-            # prediction = clf.predict(test_features)
-            prediction = classifier.classify(test_features)
-            # 7) If positive (prediction == 1) then save the window
+            decision = classifier.decision_function(test_features)
+            prediction = int(decision > 0.6)
             if prediction == 1:
                 on_windows.append(window)
         # 8) Return windows for positive detections
