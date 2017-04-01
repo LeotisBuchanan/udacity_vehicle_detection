@@ -23,7 +23,7 @@ class PredictionQualityManager:
         self.heat = self.add_heat(self.heat, detected_cars_bboxes)
         
         # Apply threshold to help remove false positives
-        self.heat = self.apply_threshold(self.heat,3)
+        self.heat = self.apply_threshold(self.heat, 2)
 
         # Visualize the heatmap when displaying    
         heatmap = np.clip(self.heat, 0, 255)
