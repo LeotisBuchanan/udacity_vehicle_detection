@@ -71,6 +71,7 @@ class WindowManager:
             decision = classifier.decision_function(test_features)
             prediction = int(decision > 0)
             if prediction == 1:
+                print("decision:" , decision)
                 on_windows.append(window)
         # 8) Return windows for positive detections
         return on_windows

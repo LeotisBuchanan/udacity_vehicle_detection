@@ -6,3 +6,7 @@ cars3
 cars2
 \.#*
 __pycache__
+*.png
+object-detection-*
+object-dataset
+*.gz

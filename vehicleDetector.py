@@ -30,30 +30,33 @@ class VehicleDetector:
         # cars that are far away
         # also clip the sides of the image to exclude areas
         # that are off the road
-        
+
+        x_stop = img.shape[1]
+        x_start = 0
         candidate_windows64 = self.windowManager.slide_window(img,
-                                                              x_start_stop=[None, None],
-                                                   y_start_stop=[300, 520], 
-                                                   xy_window=(64, 64),
-                                                   xy_overlap=(0.5, 0.5))
+                                                              x_start_stop=[x_start ,  x_stop],
+                                                              y_start_stop=[400, 500], 
+                                                              xy_window=(64, 64),
+                                                              xy_overlap=(0.5, 0.5))
 
-        candidate_windows128 = self.windowManager.slide_window(img,
-                                                   x_start_stop=[None, None],
+        candidate_windows96 = self.windowManager.slide_window(img,
+                                                   x_start_stop=[x_start ,  x_stop],
                                                    y_start_stop=[300, 700], 
-                                                   xy_window=(128,128),
+                                                   xy_window=(150,100),
                                                    xy_overlap=(0.5, 0.5))
 
 
 
-        candidate_windows256 = self.windowManager.slide_window(img,
-                                                               x_start_stop=[None, None],
-                                                               y_start_stop=[300,700], 
-                                                               xy_window=(400, 300),
-                                                               xy_overlap=(0.5, 0.5))
+        candidate_windows512 = self.windowManager.slide_window(img,
+                                                               x_start_stop=[x_start ,  x_stop],
+                                                               y_start_stop=[350,730], 
+                                                               xy_window=(200, 150),
+                                                               xy_overlap=(0, 0))
 
-        candidate_windows = candidate_windows64 + candidate_windows128 + candidate_windows256
+        #candidate_windows =  candidate_windows96 + candidate_windows512 + candidate_windows64
+        candidate_windows =   candidate_windows64
         # return a list of boxes coordinates]
-
+        
         detected_cars_coordinates = self.windowManager.search_windows(img,
                                                                  candidate_windows,
                                                                  classifier,
@@ -65,8 +68,13 @@ class VehicleDetector:
             detected_cars_coordinates)
         
 
-        output_img = self.windowManager.draw_boxes(img, best_pred_bboxes,
+        output_img = self.windowManager.draw_boxes(img,detected_cars_coordinates,
                                                    color=(0, 0, 255), thick=4)
+        """
+        output_img = self.windowManager.draw_boxes(img, candidate_windows,
+                                                   color=(0, 0, 255), thick=4)
+        """
+
         return output_img
 
     def run(self, videoList, classifier, featureGenerator, settingsDict):

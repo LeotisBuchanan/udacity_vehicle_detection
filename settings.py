@@ -4,7 +4,7 @@ class Settings:
     def __init__(self):
         self.settingsDict = {}
         constants = Constants()
-        self.settingsDict[constants.COLOR_SPACE] = 'RGB'
+        self.settingsDict[constants.COLOR_SPACE] = 'YCrCb'
         self.settingsDict[constants.SPATIAL_SIZE] = (32, 32)
         self.settingsDict[constants.HIST_BINS] = 16
         self.settingsDict[constants.ORIENTATION] = 9
