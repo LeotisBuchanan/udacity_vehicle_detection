@@ -4,26 +4,27 @@ import numpy as np
 import pickle
 import cv2
 from scipy.ndimage.measurements import label
-
+from nonmax import non_max_suppression_fast
 class PredictionQualityManager:
 
     def __init__(self, image):
+        self.image = image
         self.heat = np.zeros_like(image[:,:,0]).astype(np.float)
+        self.frame_count  = 0
         
+    
+    
+        
+    def findBestPredictions(self, img,detected_cars_bboxes):
 
-    def findBestPredictions(self, detected_cars_bboxes):
-
-        """
-         attempt to determine if the given boxes are 
-         real detecting are false detections
-
-        """
+        # start counting again
+        self.frame_count = self.frame_count + 1
         best_predicted_boxes = [] 
         # Add heat to each box in box list
         self.heat = self.add_heat(self.heat, detected_cars_bboxes)
         
         # Apply threshold to help remove false positives
-        self.heat = self.apply_threshold(self.heat, 2)
+        self.heat = self.apply_threshold(self.heat, 1)
 
         # Visualize the heatmap when displaying    
         heatmap = np.clip(self.heat, 0, 255)
@@ -40,10 +41,11 @@ class PredictionQualityManager:
             nonzerox = np.array(nonzero[1])
             # Define a bounding box based on min/max x and y
             bbox = ((np.min(nonzerox), np.min(nonzeroy)), (np.max(nonzerox), np.max(nonzeroy)))
-            # add boxes  to list 
-            best_predicted_boxes.append(bbox)
+            # add boxes  to list
+            cv2.rectangle(img, bbox[0], bbox[1], (0,0,255), 6)
+
             # Return the image
-        return best_predicted_boxes
+        return img
 
 
         
@@ -77,6 +79,10 @@ class PredictionQualityManager:
             cv2.rectangle(img, bbox[0], bbox[1], (0,0,255), 6)
             # Return the image
         return img
+
+
+
+
 
 
 

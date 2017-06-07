@@ -22,7 +22,7 @@ class Classifier:
     def classify(self, features):
         # prediction = self.svc.predict(features)
         decision_threshhold = self.svc.decision_function(features)
-        prediction = int(decision_threshhold > 0.75)
+        prediction = int(decision_threshhold > 1)
         return prediction
 
     def train(self, cars_base_path, not_cars_base_path, retrain=True):
