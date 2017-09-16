@@ -24,7 +24,7 @@ class VehicleDetector:
 
     def computeBoxes(self, img):
         x_stop = img.shape[1]
-        x_start = 100
+        x_start = 620
         windowManager = self.windowManager
         c64 = windowManager.slide_window(img,
                                           x_start_stop=[x_start ,  x_stop],
@@ -34,15 +34,15 @@ class VehicleDetector:
 
         c128 = windowManager.slide_window(img,
                                           x_start_stop=[x_start ,  x_stop],
-                                          y_start_stop=[300, 600], 
+                                          y_start_stop=[400, 600], 
                                           xy_window=(128,128),
                                           xy_overlap=(0.2, 0.2))
 
 
 
         c512 = windowManager.slide_window(img,
-                                           x_start_stop=[x_start ,  x_stop],
-                                           y_start_stop=[350,730], 
+                                           x_start_stop=[x_start ,x_stop],
+                                           y_start_stop=[450,600], 
                                            xy_window=(256, 256),
                                            xy_overlap=(0.5, 0.5))
 
@@ -145,7 +145,6 @@ class VehicleDetector:
 if __name__ == "__main__":
     vehicleDetector = VehicleDetector()
     videoList = ["videos/input/project_video.mp4"]
-    #videoList = ["videos/input/test_video.mp4"]
     # load the classifier
     classifier_file = "models/classifier.pkl"
     print("loading saved model from file....")
@@ -153,7 +152,6 @@ if __name__ == "__main__":
     classifier = model_data['model']
     settingsDict = model_data['settings_dict']                              
     featureGenerator = FeatureGenerator(settingsDict)
-
     vehicleDetector.run(videoList,classifier, featureGenerator,settingsDict)
 
-    #vehicleDetector.testOnImages(classifier,featureGenerator,settingsDict)
+

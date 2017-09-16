@@ -9,7 +9,7 @@ class PredictionQualityManager:
 
     def __init__(self, image):
         self.image = image
-        self.heat = np.zeros_like(image[:,:,0]).astype(np.float)
+        self.heat = np.zeros_like(self.image[:,:,0]).astype(np.float)
         self.frame_count  = 0
         
     
@@ -19,20 +19,21 @@ class PredictionQualityManager:
 
         # start counting again
         self.frame_count = self.frame_count + 1
+        print("frame_count :" + str(self.frame_count))
         best_predicted_boxes = [] 
         # Add heat to each box in box list
         self.heat = self.add_heat(self.heat, detected_cars_bboxes)
         
         # Apply threshold to help remove false positives
-        self.heat = self.apply_threshold(self.heat, 1)
-
-        # Visualize the heatmap when displaying    
+        # only apply this after 15 frames
+        if(self.frame_count > 20):
+            self.frame_count = 0 
+            self.heat = self.apply_threshold(self.heat, 20)
+            # Visualize the heatmap when displaying    
         heatmap = np.clip(self.heat, 0, 255)
-
         # Find final boxes from heatmap using label function
         labels = label(heatmap)
-
-
+        print("Number of cars found:" + str(labels[1]))
         for car_number in range(1, labels[1]+1):
             # Find pixels with each car_number label value
             nonzero = (labels[0] == car_number).nonzero()
@@ -43,8 +44,9 @@ class PredictionQualityManager:
             bbox = ((np.min(nonzerox), np.min(nonzeroy)), (np.max(nonzerox), np.max(nonzeroy)))
             # add boxes  to list
             cv2.rectangle(img, bbox[0], bbox[1], (0,0,255), 6)
-
-            # Return the image
+            # reset the heatmap
+            self.heat = np.zeros_like(self.image[:,:,0]).astype(np.float)
+        # Return the image
         return img
 
 
